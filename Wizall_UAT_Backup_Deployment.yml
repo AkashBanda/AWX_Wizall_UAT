@@ -1,0 +1,159 @@
+- hosts: all
+  vars_files:
+    - /root/Ansible/Wizall_UAT/var.yml
+  tasks:
+    - name: Get the current date in YYYY-MM-DD format
+      ansible.builtin.command: "date +%F"
+      register: current_date
+
+    - name: Ensure the date-based backup directory exists
+      ansible.builtin.file:
+        path: "/data/backup/{{ current_date.stdout }}"
+        state: directory
+        mode: '0755'
+
+    - name: Ensure the Service-based backup directory exists
+      ansible.builtin.file:
+        path: "/data/backup/{{ current_date.stdout }}/{{ service }}"
+        state: directory
+        mode: '0755'    
+        
+    - shell: "ls | wc -l"
+      args:
+        chdir: "/data/backup/{{ current_date.stdout }}/{{ service }}/"
+      register: count
+
+    - set_fact:
+        b: "{{ count.stdout | int + 1 }}" 
+
+    - name: Creating Directory for Backup
+      file:
+        path: "/data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}"
+        state: directory
+        mode: "0755"
+        
+    - name: Set global current_date for all hosts
+      add_host:
+        name: localhost
+        global_current_date: "{{ current_date.stdout }}"
+        Deploy_Num: "{{ b }}"
+        
+    - set_fact:
+       service2: Management
+      when: service == "ManagementServices"
+      register: output
+
+    - set_fact:
+       service2: Internaltrn
+      when: service == "InternalTrnService"
+
+    - set_fact:
+       service2: MobifinWeb
+      when: service == "MobifinWebService"
+
+    - set_fact:
+       service2: Refund
+      when: service == "RefundService"  
+
+    - set_fact:
+       service2: Settlement
+      when: service == "SettlementService"
+
+    - set_fact:
+       service2: Tub
+      when: service == "TUBService"
+
+    - set_fact:
+       service2: Report
+      when: service == "ReportService"  
+
+    - set_fact:
+       service3: SN_MFS_Mgnt.service
+      when: service == "ManagementServices"
+
+    - set_fact:
+       service3: SN_MFS_InternalTrn.service
+      when: service == "InternalTrnService"
+
+    - set_fact:
+       service3: SN_MFS_MW.service
+      when: service == "MobifinWebService"
+
+    - set_fact:
+       service3: SN_MFS_Refund.service
+      when: service == "RefundService"  
+
+    - set_fact:
+       service3: SN_MFS_Settlement.service
+      when: service == "SettlementService"
+
+    - set_fact:
+       service3: SN_MFS_Tub.service
+      when: service == "TUBService"
+
+    - set_fact:
+       service3: SN_MFS_Report.service
+      when: service == "ReportService"  
+        
+    - name: Taking backup for {{ service }}.jar
+      command: "mv /home/mfssupport.lead/Wizall/{{ service2 }}/Apps/{{ service }}.jar /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
+#      command: "mv /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/Apps/{{ service }}.jar /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
+      when: service != "InternalTrnService"
+      ignore_errors: yes
+
+    - name: Taking backup for InternalTransactionService.jar
+      command: "mv /home/mfssupport.lead/Wizall/{{ service2 }}/Apps/InternalTransactionService.jar /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
+#      command: "mv /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/Apps/InternalTransactionService.jar /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
+      when: service == "InternalTrnService"
+      ignore_errors: yes
+
+    - name: Taking backup for {{ service }} dependencies directory
+      command: "mv /home/mfssupport.lead/Wizall/{{ service2 }}/dependencies /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
+#      command: "mv /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/dependencies /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
+      ignore_errors: yes
+      
+    - name: Depploying {{ service }}.jar on {{ service2 }} service
+      copy: 
+         src: "/root/Ansible/Wizall_UAT/MFS-WizallMW/{{ service }}/target/{{ service }}.jar"
+         dest: "/home/mfssupport.lead/Wizall/{{ service2 }}/Apps/"
+#         dest: "/opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/Apps/"
+         owner: "mobifin"
+         group: "mobifin"
+         mode: "0755"
+      when: service != "InternalTrnService"
+
+    - name: Depploying InternalTransactionService.jar on {{ service2 }} service
+      copy: 
+         src: "/root/Ansible/Wizall_UAT/MFS-WizallMW/{{ service }}/target/InternalTransactionService.jar"
+         dest: "/home/mfssupport.lead/Wizall/{{ service2 }}/Apps/"
+#         dest: "/opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/Apps/"
+         owner: "mobifin"
+         group: "mobifin"
+         mode: "0755"
+      when: service == "InternalTrnService"
+
+    - name: Deploying {{ service }} dependencies on {{ service2 }} Service
+      copy:
+         src: "/root/Ansible/Wizall_UAT/MFS-WizallMW/{{ service }}/target/dependency-jars/"
+         dest: "/home/mfssupport.lead/Wizall/{{ service2 }}/dependencies/"
+#         dest: "/opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/dependencies/"
+         owner: "mobifin"
+         group: "mobifin"
+         mode: "0755" 
+
+    - name: Restarting {{ service }} service
+      service:
+         name: "{{ service3 }}"
+         state: "restarted"   
+
+
+- hosts: localhost
+  connection: local
+  tasks:
+    - lineinfile:
+        path: "/root/Ansible/Wizall_UAT/var.yml"
+        line: "- date: {{ hostvars['localhost']['global_current_date'] }}"  
+        
+    - lineinfile:
+        path: "/root/Ansible/Wizall_UAT/var.yml"
+        line: "- Num: {{ hostvars['localhost']['Deploy_Num'] }}"
