@@ -1,0 +1,111 @@
+- hosts: all
+  vars_files:
+    - /root/Ansible/Wizall_UAT/var.yml 
+  tasks:
+    - name: Ensure the date-based rollback directory exists
+      ansible.builtin.file:
+        path: "/data/rollback/{{ date }}"
+        state: directory
+        mode: '0755'
+
+    - name: Ensure the service-based rollback directory exists
+      ansible.builtin.file:
+        path: "/data/rollback/{{ date }}/{{ service}}"
+        state: directory
+        mode: '0755'    
+
+    - name: Creating rollback directory
+      ansible.builtin.file:
+        path: "/data/rollback/{{ date }}/{{ service}}/{{ Num }}"
+        state: directory
+        mode: '0755'
+        
+    - set_fact:
+       service2: Management
+      when: service == "ManagementServices"
+
+    - set_fact:
+       service2: Internaltrn
+      when: service == "InternalTrnService"
+
+    - set_fact:
+       service2: MobifinWeb
+      when: service == "MobifinWebService"
+
+    - set_fact:
+       service2: Refund
+      when: service == "RefundService"  
+
+    - set_fact:
+       service2: Settlement
+      when: service == "SettlementService"
+
+    - set_fact:
+       service2: Tub
+      when: service == "TUBService"
+
+    - set_fact:
+       service2: Report
+      when: service == "ReportService"  
+
+    - set_fact:
+       service3: SN_MFS_Mgnt.service
+      when: service == "ManagementServices"
+
+    - set_fact:
+       service3: SN_MFS_InternalTrn.service
+      when: service == "InternalTrnService"
+
+    - set_fact:
+       service3: SN_MFS_MW.service
+      when: service == "MobifinWebService"
+
+    - set_fact:
+       service3: SN_MFS_Refund.service
+      when: service == "RefundService"  
+
+    - set_fact:
+       service3: SN_MFS_Settlement.service
+      when: service == "SettlementService"
+
+    - set_fact:
+       service3: SN_MFS_Tub.service
+      when: service == "TUBService"
+
+    - set_fact:
+       service3: SN_MFS_Report.service
+      when: service == "ReportService"
+      
+    - name: Taking rollback backup for {{ service }}.jar
+      command: "mv /home/mfssupport.lead/Wizall/{{ service2 }}/Apps/{{ service }}.jar /data/rollback/{{ date }}/{{ service }}/{{ Num }}/"
+#      command: "mv /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/Apps/{{ service }}.jar /data/rollback/{{ date }}/{{ service }}/{{ Num }}/"
+      when: service != "InternalTrnService"
+
+    - name: Taking rollback backup for InternalTransactionService.jar
+      command: "mv /home/mfssupport.lead/Wizall/{{ service2 }}/Apps/InternalTransactionService.jar /data/rollback/{{ date }}/{{ service }}/{{ Num }}/"
+#      command: "mv /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/Apps/InternalTransactionService.jar /data/rollback/{{ date }}/{{ service }}/{{ Num }}/"
+      when: service == "InternalTrnService"
+
+    - name: Doing rollback for {{ service }}.jar
+      command: "mv /data/backup/{{ date }}/{{ service }}/{{ Num }}/{{ service }}.jar /home/mfssupport.lead/Wizall/{{ service2 }}/Apps/"
+#      command: "mv /data/backup/{{ date }}/{{ service }}/{{ Num }}/{{ service }}.jar /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/Apps/"
+      when: service != "InternalTrnService"
+
+    - name: Doing rollback for InternalTransactionService.jar
+      command: "mv /data/backup/{{ date }}/{{ service }}/{{ Num }}/InternalTransactionService.jar /home/mfssupport.lead/Wizall/{{ service2 }}/Apps/"
+#      command: "mv /data/backup/{{ date }}/{{ service }}/{{ Num }}/InternalTransactionService.jar /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/Apps/"
+      when: service == "InternalTrnService"
+
+    - name: Taking rollback backup for {{ service }}  dependencies
+      command: "mv /home/mfssupport.lead/Wizall/{{ service2 }}/dependencies /data/rollback/{{ date }}/{{ service }}/{{ Num }}/"
+#      command: "mv /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/dependencies /data/rollback/{{ date }}/{{ service }}/{{ Num }}/"
+
+    - name: Doing rollback for {{ service }} dependencies
+      command: "mv /data/backup/{{ date }}/{{ service }}/{{ Num }}/dependencies /home/mfssupport.lead/Wizall/{{ service2 }}/"
+#      command: "mv /data/backup/{{ date }}/{{ service }}/{{ Num }}/dependencies /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/"
+      
+    
+    - name: Restarting {{ service }} service
+      service:
+         name: "{{ service3 }}"
+         state: "restarted"
