@@ -99,13 +99,14 @@
     - name: Taking rollback backup for {{ service }}  dependencies
       command: "mv /home/mfssupport.lead/Wizall/{{ service2 }}/dependencies /data/rollback/{{ date }}/{{ service }}/{{ Num }}/"
 #      command: "mv /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/dependencies /data/rollback/{{ date }}/{{ service }}/{{ Num }}/"
-
+      ignore_errors: yes
+      
     - name: Doing rollback for {{ service }} dependencies
       command: "mv /data/backup/{{ date }}/{{ service }}/{{ Num }}/dependencies /home/mfssupport.lead/Wizall/{{ service2 }}/"
 #      command: "mv /data/backup/{{ date }}/{{ service }}/{{ Num }}/dependencies /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/"
       
     
-    - name: Restarting {{ service }} service
-      service:
-         name: "{{ service3 }}"
-         state: "restarted"
+#    - name: Restarting {{ service }} service
+#      service:
+#         name: "{{ service3 }}"
+#         state: "restarted"
