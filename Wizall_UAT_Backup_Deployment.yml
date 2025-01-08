@@ -132,19 +132,22 @@
          mode: "0755"
       when: service == "InternalTrnService"
 
-    - name: Deploying {{ service }} dependencies on {{ service2 }} Service
-      copy:
-         src: "/root/Ansible/Wizall_UAT/MFS-WizallMW/{{ service }}/target/dependency-jars/"
-         dest: "/home/mfssupport.lead/Wizall/{{ service2 }}/dependencies/"
+#    - name: Deploying {{ service }} dependencies on {{ service2 }} Service
+#      copy:
+#         src: "/root/Ansible/Wizall_UAT/MFS-WizallMW/{{ service }}/target/dependency-jars/"
+#         dest: "/home/mfssupport.lead/Wizall/{{ service2 }}/dependencies/"
 #         dest: "/opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/dependencies/"
-         owner: "mobifin"
-         group: "mobifin"
-         mode: "0755" 
+#         owner: "mobifin"
+#         group: "mobifin"
+#         mode: "0755" 
 
-    - name: Restarting {{ service }} service
-      service:
-         name: "{{ service3 }}"
-         state: "restarted"   
+#    - name: Restarting {{ service }} service
+#      service:
+#         name: "{{ service3 }}"
+#         state: "restarted"
+
+    - name: Get {{ service }} Service Status
+       command: systemctl status {{ service3 }}     
 
 
 - hosts: localhost
