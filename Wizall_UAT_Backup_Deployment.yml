@@ -147,7 +147,7 @@
 #         state: "restarted"
 
     - name: Get {{ service }} Service Status
-       command: systemctl status {{ service3 }}     
+      command: systemctl status {{ service3 }}     
 
 
 - hosts: localhost
