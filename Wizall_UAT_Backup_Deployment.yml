@@ -96,8 +96,8 @@
       when: service == "ReportService"  
         
     - name: Taking backup for {{ service }}.jar
-      command: "mv /home/mfssupport.lead/Wizall/{{ service2 }}/Apps/{{ service }}.jar /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
-#      command: "mv /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/Apps/{{ service }}.jar /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
+#      command: "mv /home/mfssupport.lead/Wizall/{{ service2 }}/Apps/{{ service }}.jar /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
+      command: "mv /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/Apps/{{ service }}.jar /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
       when: service != "InternalTrnService"
       ignore_errors: yes
 
@@ -108,15 +108,15 @@
       ignore_errors: yes
 
     - name: Taking backup for {{ service }} dependencies directory
-      command: "mv /home/mfssupport.lead/Wizall/{{ service2 }}/dependencies /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
-#      command: "mv /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/dependencies /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
+#      command: "mv /home/mfssupport.lead/Wizall/{{ service2 }}/dependencies /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
+      command: "mv /opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/dependencies /data/backup/{{ current_date.stdout }}/{{ service }}/{{ b }}/"
       ignore_errors: yes
       
     - name: Depploying {{ service }}.jar on {{ service2 }} service
       copy: 
          src: "/root/Ansible/Wizall_UAT/MFS-WizallMW/{{ service }}/target/{{ service }}.jar"
-         dest: "/home/mfssupport.lead/Wizall/{{ service2 }}/Apps/"
-#         dest: "/opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/Apps/"
+#         dest: "/home/mfssupport.lead/Wizall/{{ service2 }}/Apps/"
+         dest: "/opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/Apps/"
          owner: "mobifin"
          group: "mobifin"
          mode: "0755"
@@ -135,16 +135,16 @@
     - name: Deploying {{ service }} dependencies on {{ service2 }} Service
       copy:
          src: "/root/Ansible/Wizall_UAT/MFS-WizallMW/{{ service }}/target/dependency-jars/"
-         dest: "/home/mfssupport.lead/Wizall/{{ service2 }}/dependencies/"
-#         dest: "/opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/dependencies/"
+#         dest: "/home/mfssupport.lead/Wizall/{{ service2 }}/dependencies/"
+         dest: "/opt/Application/SN_Wizall/MobifinApps/{{ service2 }}/dependencies/"
          owner: "mobifin"
          group: "mobifin"
          mode: "0755" 
 
-#    - name: Restarting {{ service }} service
-#      service:
-#         name: "{{ service3 }}"
-#         state: "restarted"
+    - name: Restarting {{ service }} service
+      service:
+         name: "{{ service3 }}"
+         state: "restarted"
 
     - name: Get {{ service }} Service Status
       command: systemctl status {{ service3 }}     
