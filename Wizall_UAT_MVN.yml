@@ -1,4 +1,5 @@
 - hosts: localhost
+  become: true
   vars_files:
      - /root/Ansible/Wizall_UAT/var.yml
   tasks:
