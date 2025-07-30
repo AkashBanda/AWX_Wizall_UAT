@@ -3,10 +3,10 @@
   vars_files:
      - /root/Ansible/Wizall_UAT/var.yml
   tasks:
-#     - command:
-#          cmd: "git pull"
-#          chdir: "/root/Ansible/Wizall_UAT/MFS-WizallMW/"
-#       register: output
+     - command:
+          cmd: "git pull"
+          chdir: "/root/Ansible/Wizall_UAT/MFS-WizallMW/"
+       register: output
 
 #     - debug:
 #          msg: "{{ output }}"
