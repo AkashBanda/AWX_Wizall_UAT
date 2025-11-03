@@ -1,4 +1,5 @@
 - hosts: 172.17.0.1
+  remote_user: akash.banda
 #  become: true
   vars_files:
      - /root/Ansible/Wizall_UAT/var.yml
