@@ -1,5 +1,5 @@
-- hosts: 172.17.0.1
-  remote_user: akash.banda
+- hosts: localhost
+#  remote_user: akash.banda
 #  become: true
   vars_files:
      - /root/Ansible/Wizall_UAT/var.yml
@@ -14,6 +14,7 @@
        
      - name: "MVN running on MobifinMainModule"
        command:
+          cmd: "ulimit -n 10000"
           cmd: "mvn clean install"
           chdir: "/root/Ansible/Wizall_UAT/MFS-WizallMW/MobifinMainModule"
 
