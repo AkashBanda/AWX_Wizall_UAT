@@ -11,10 +11,13 @@
 
      - debug:
           msg: "{{ output }}"
-       
-     - name: "MVN running on MobifinMainModule"
+          
+     - name: "Ulimit setting up"
        command:
           cmd: "ulimit -n 10000"
+          
+     - name: "MVN running on MobifinMainModule"
+       command:
           cmd: "mvn clean install"
           chdir: "/root/Ansible/Wizall_UAT/MFS-WizallMW/MobifinMainModule"
 
