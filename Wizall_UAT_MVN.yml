@@ -19,7 +19,7 @@
 
      - name: "MVN running on RedisDataProvider"
        command:
-          cmd: "mvn clean install"
+          cmd: "JAVA_HOME=/root/Ansible/mvn/jdk1.8.0_191 && PATH=/root/Ansible/mvn/jdk1.8.0_191/bin:$PATH && mvn clean install"
           chdir: "/root/Ansible/Wizall_UAT/MFS-WizallMW/RedisDataProvider"
 
      - name: "MVN running on DatabaseServiceProvider"
